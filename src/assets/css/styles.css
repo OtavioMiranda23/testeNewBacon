@@ -6,3 +6,10 @@
     box-sizing: border-box;
     font-family: "Montserrat", sans-serif;
 }
+:root {
+    /* Define o tamanho máximo dos containers */
+    --containerSize: 592px;
+  }
+.section {
+    max-width: var(--containerSize);
+}
