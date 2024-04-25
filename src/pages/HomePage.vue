@@ -63,6 +63,7 @@ export default {
     data() {
         return {
             users: [],
+            usersStorage: [],
             formOpen: false,
             currId: null,
         }
@@ -71,6 +72,10 @@ export default {
     async created() {
         await this.getUsers(1, 6);
         // carregar users do localstorage
+        if (window.localStorage.getItem("dataUser")) {
+            const usersLocal = window.localStorage.getItem("dataUser");
+            console.log(usersLocal);
+        }
         console.log(this.users);
     },
 
@@ -115,7 +120,7 @@ export default {
 
                 const res = await axios.post('https://reqres.in/api/users', userDataToCreate);
                 this.users.unshift(res.data);
-                //persistUser({...this.users[updatedUserIndex], ...res.data})
+                // this.persistUser({...this.users[updatedUserIndex], ...res.data})
                 this.toggleForm(null);
 
             } catch(error) {
@@ -180,7 +185,15 @@ export default {
                     console.error(`Usuário com id ${id} não encontrado no state users`);
                     return;
                 }
-                //persistUser({...this.users[updatedUserIndex], ...res.data})
+                // const updatedUserStorageIndex = this.usersStorage.findIndex(user => user.id === id);
+                // if (updatedUserStorageIndex !== -1) {
+                //     this.usersStorage.splice() [updatedUserStorageIndex]
+
+                // }
+                this.usersStorage.push(this.users[updatedUserIndex]);
+            
+                // this.persistUser({...this.users[updatedUserIndex]})
+                this.persistUser();
                 this.users[updatedUserIndex] = {...this.users[updatedUserIndex], ...res.data};
 
             } catch(error) {
@@ -191,7 +204,10 @@ export default {
             }
         },
         persistUser(){
+            if (typeof(Storage) === "undefined") return null;
             // 1. carregar localstorage e fazer parse com JSON.parse()
+            window.localStorage.setItem("dataUser", JSON.stringify(this.usersStorage));
+            console.log(window.localStorage.getItem("dataUser"))
             // 2. ver se o usuário existe no localstorage
             // 3.1 se existir, substituir o usuário
             // 3.2 se não existir, adicionar o usuário
