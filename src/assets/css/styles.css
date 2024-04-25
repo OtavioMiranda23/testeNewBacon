@@ -12,4 +12,5 @@
   }
 .section {
     max-width: var(--containerSize);
+    margin: 96px auto 0;
 }

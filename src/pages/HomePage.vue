@@ -215,9 +215,6 @@ export default {
 </script>
 
 <style lang="css" scoped>
-main {
-  margin: 96px auto 0;
-}
 .title-wrapper {
   display: flex;
   width: 100%;

@@ -1,7 +1,7 @@
 <template>
-<div class="details">
+<div class="details section">
   <div class="details-top">
-    <span>{{ user.id }}</span>
+    <span>#{{ user.id }}</span>
     <router-link :to="`/`">
       <button>Voltar</button>
     </router-link>
@@ -13,33 +13,33 @@
         <img :src="user.avatar ? user.avatar : require('@/assets/avatar.png')"
         :alt="'Avatar do usuário ' + user.first_name + ' ' + user.last_name">
       </div>
-      <div class="details-first-name">
-        <span>Primeiro nome</span>
-        <strong>{{ user.first_name }}</strong>
+      <div class="details-name">
+        <span class="details-title">Primeiro nome</span>
+        <strong class="details-subtitle">{{ user.first_name }}</strong>
       </div>
-      <div v-if="user.first_name" class="details-last-name">
+      <div class="details-name" v-if="user.first_name">
         <span>Último nome</span>
-        <strong>{{ user.last_name }}</strong>
+        <strong class="details-subtitle">{{ user.last_name }}</strong>
       </div>
     </div>
 
     <div class="details-bottom-wrapper">
       <div class="details-mail">
-        <span>Endereço de email</span>
-        <span>george.bluth@reqres.in</span>
+        <span class="details-title">Endereço de email</span>
+        <span class="details-subtitle">george.bluth@reqres.in</span>
       </div>
       <div v-if="user.email" class="details-avatar">
-        <span>Link do avatar</span>
-        <a :href="user.email" target="_blank">{{ user.email }}</a>
+        <span class="details-title">Link do avatar</span>
+        <a class="details-subtitle" :href="user.email" target="_blank">{{ user.email }}</a>
       </div>
-    </div>
-    <div class="details-support">
-      <span>Link de suporte</span>
-      <a href="https://reqres.in/#support-heading" target="_blank">https://reqres.in/#support-heading</a >
-    </div>
-    <div class="details-description">
-      <span>Descrição do usuário</span>
-      <span>To keep ReqRes free, contributions towards server costs are appreciated!</span>
+      <div class="details-support">
+        <span class="details-title">Link de suporte</span>
+        <a class="details-subtitle" href="https://reqres.in/#support-heading" target="_blank">https://reqres.in/#support-heading</a >
+      </div>
+      <div class="details-description">
+        <span class="details-title">Descrição do usuário</span>
+        <span class="details-subtitle">To keep ReqRes free, contributions towards server costs are appreciated!</span>
+      </div>
     </div>
   </div>
 </div>
@@ -82,3 +82,53 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.details-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.details-top button {
+  width: 185px;
+  height: 55px;
+  background-color: #F7F7F7;
+  font-weight: 600;
+  font-size: 0.938rem;
+  border: none;
+  cursor: pointer;
+}
+.details-top span {
+  font-size: 3.125rem;
+  font-weight: 700;
+}
+.details-middle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.details-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.details-title {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #797979;
+}
+.details-subtitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000;
+}
+.details-bottom-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+.details-bottom-wrapper div {
+  display: flex;
+  flex-direction: column;
+}
+</style>
