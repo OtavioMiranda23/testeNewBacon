@@ -71,11 +71,6 @@ export default {
 
     async created() {
         await this.getUsers(1, 6);
-        // carregar users do localstorage
-        if (window.localStorage.getItem("dataUser")) {
-            const usersLocal = window.localStorage.getItem("dataUser");
-            console.log(usersLocal);
-        }
         console.log(this.users);
     },
 
@@ -190,7 +185,7 @@ export default {
                 //     this.usersStorage.splice() [updatedUserStorageIndex]
 
                 // }
-                this.usersStorage.push(this.users[updatedUserIndex]);
+                this.usersStorage[updatedUserIndex] = {...this.users[updatedUserIndex], ...res.data};
             
                 // this.persistUser({...this.users[updatedUserIndex]})
                 this.persistUser();
@@ -207,7 +202,7 @@ export default {
             if (typeof(Storage) === "undefined") return null;
             // 1. carregar localstorage e fazer parse com JSON.parse()
             window.localStorage.setItem("dataUser", JSON.stringify(this.usersStorage));
-            console.log(window.localStorage.getItem("dataUser"))
+            console.log('storeage', window.localStorage.getItem("dataUser"))
             // 2. ver se o usuário existe no localstorage
             // 3.1 se existir, substituir o usuário
             // 3.2 se não existir, adicionar o usuário
