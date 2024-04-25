@@ -1,90 +1,92 @@
 <template>
-    <main class="section">
-        <div>
-            <div class="title-wrapper">
-                <h1>Usuários</h1>
-                <button @click="handleAddNewUser" class="btn-new-usr">Novo Usuário</button>
-            </div>
-            <div v-show="isNewUserOpen || isEditUserOpen">
-            <div>
-                <span>Nome do usuário</span>
-                <input type="text" v-model="newUser.name">
-            </div>
-            <div>
-                <span>Função do usuário</span>
-                <select v-model="newUser.role">
-                    <option value="Desenvolvedor">Desenvolvedor</option>
-                    <option value="Gerente de Projetos">Gerente de Projetos</option>
-                    <option value="Tech Lead">Tech Lead</option>
-                    <option value="UI/UX Designer">UI/UX Designer</option>
-                </select>
-            </div>
-            <button @click="isNewUserOpen ? handleSubmitNewUser() : updateUser(newUser.id)">
-                {{ isNewUserOpen ? 'Adicionar Usuário' : 'Salvar Alterações' }}
-            </button>            
-            </div>
-            <div class="card-wrapper" v-if="users.length">
-                <Card v-for="user in users" 
-                :key="user.id" 
-                :userId="user.id" 
-                @delete-user="deleteUser(user.id)"
-                @update-user="updateUser(user.id)"
-                
-                >
-                    <template #imgCard>
-                        <img
-                        :src="user.avatar ? user.avatar : require('@/assets/avatar.png')" 
-                        :alt="user.first_name ? 
-                        'Avatar do usuário ' + user.first_name + ' ' + user.last_name :
-                        'Avatar com foto genérica'" />
-                    </template>
-                    <template #idCard>
-                        <span>#{{ user.id }}</span>
-                    </template>
-                    <template #nameCard>
-                        <strong v-if="user.last_name">{{ user.first_name }} {{ user.last_name }} </strong>
-                        <strong v-else>{{ user.name }}</strong>
-                    </template>
-                    <template #mailCard>
-                        <span>{{ user.email }}</span>
-                    </template>
-                    <template #roleCard>
-                        <span>{{ user.role }}</span>
-                    </template>
-                </Card>
-
-            </div>
-        </div>
-    </main>
+  <main class="section">
+    <div>
+      <div class="title-wrapper">
+        <h1>Usuários</h1>
+        <button @click="toggleForm(null)" class="btn-new-usr">
+          Novo Usuário
+        </button>
+      </div>
+      <CreateUserForm
+        v-show="formOpen"
+        @submit-user="handleUserSubmit"
+        :userId="this.currId"
+      />
+      <div class="card-wrapper" v-if="users.length">
+        <Card
+          v-for="user in users"
+          :key="user.id"
+          :userId="user.id"
+          @delete-user="deleteUser(user.id)"
+          @update-user="toggleForm(user.id)"
+        >
+          <template #imgCard>
+            <img
+              :src="user.avatar ? user.avatar : require('@/assets/avatar.png')"
+              :alt="
+                user.first_name
+                  ? 'Avatar do usuário ' +
+                    user.first_name +
+                    ' ' +
+                    user.last_name
+                  : 'Avatar com foto genérica'
+              "
+            />
+          </template>
+          <template #idCard>
+            <span>#{{ user.id }}</span>
+          </template>
+          <template #nameCard>
+            <strong>{{ user.first_name }} {{ user.last_name }} </strong>
+          </template>
+          <template #mailCard>
+            <span>{{ user.email }}</span>
+          </template>
+          <template #roleCard>
+            <span>{{ user.role }}</span>
+          </template>
+        </Card>
+      </div>
+    </div>
+  </main>
 </template>
-<script>  
+<script>
+
 import axios from "axios";
 import Card from "../components/CardUser"
+import CreateUserForm from "../components/CreateUserForm"
 export default {
     components: {
-        Card
+        Card,
+        CreateUserForm
     },
     data() {
         return {
             users: [],
-            isNewUserOpen: false,
-            isEditUserOpen: false,
-            newUser: {
-                name: '',
-                role: ''
-            }
+            formOpen: false,
+            currId: null,
         }
     },
 
     async created() {
         await this.getUsers(1, 6);
+        // carregar users do localstorage
         console.log(this.users);
     },
+
     methods: {
+        handleUserSubmit(info){
+            if(info.id){
+                this.updateUser(info.id, info);
+                return;
+            }
+
+            this.createUser(info);
+        },
         async getUsers(page, per_page) {
             try {
                 const res = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=${per_page}`);
-                this.users = res.data.data; 
+                this.users = res.data.data;
 
             } catch(error) {
                 console.error(error);
@@ -99,74 +101,134 @@ export default {
             console.error('Error deleting user:', error);
             }
         },
-        handleAddNewUser() {
-            this.isNewUserOpen = !this.isNewUserOpen;
-        },
-        async handleSubmitNewUser() {
+        async createUser(user) {
+            console.log("create user")
             try {
-                const res = await axios.post('https://reqres.in/api/users', {
-                    name: this.newUser.name,
-                    role: this.newUser.role
-                });
-                console.log(res)
+                let {first_name, last_name} = this.handleName(user.name);
+
+                const userDataToCreate = {
+                    first_name,
+                    role: user.role,
+                };
+
+                if(last_name) userDataToCreate.last_name = last_name;
+
+                const res = await axios.post('https://reqres.in/api/users', userDataToCreate);
                 this.users.unshift(res.data);
-                this.isNewUserOpen = false; 
-                this.newUser.name = ''; 
-                this.newUser.role = ''; 
+                //persistUser({...this.users[updatedUserIndex], ...res.data})
+                this.toggleForm(null);
+
             } catch(error) {
                 console.error('Error creating new user:', error);
             }
         },
-        async updateUser(id) {
-            this.isEditUserOpen = !this.isEditUserOpen;
+
+        /**
+         * @param {number} id
+         * @returns {void}
+         */
+        toggleForm(id){
+            
+            this.currId = id;
+            this.formOpen = !this.formOpen;
+            console.log("toggleForm$id " + this.currId);
+        },
+
+        /**
+         * @param {string} nome 
+         * @returns {string}
+         */
+        handleName(nome){
+            let split = nome.split(" ");
+            let result = {first_name: this.capitalize(split[0])};
+            if(split.length > 1){
+                result.last_name = this.capitalize(split.at(-1));
+            }
+
+            return result;
+        },
+        
+        /**
+         * @param {string} name 
+         * @returns {string}
+         */
+        capitalize(name){
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        },
+        /**
+         * @param {number} id 
+         * @param {Object} user 
+         * @returns {void}
+         */
+        async updateUser(id, user) {
+            console.log("update user")
             try {
+
+                let {first_name, last_name} = this.handleName(user.name);
+
                 const userDataToUpdate = {
-                    name: this.newUser.name,
-                    role: this.newUser.role
+                    first_name,
+                    role: user.role,
                 };
 
+                if(last_name) userDataToUpdate.last_name = last_name;
+
                 const res = await axios.patch(`https://reqres.in/api/users/${id}`, userDataToUpdate);
-                console.log(res);
 
                 const updatedUserIndex = this.users.findIndex(user => user.id === id);
-                if (updatedUserIndex !== -1) {
-                    this.users[updatedUserIndex] = { ...this.users[updatedUserIndex], ...res.data };
+                if (updatedUserIndex === -1) {
+                    console.error(`Usuário com id ${id} não encontrado no state users`);
+                    return;
                 }
+                //persistUser({...this.users[updatedUserIndex], ...res.data})
+                this.users[updatedUserIndex] = {...this.users[updatedUserIndex], ...res.data};
+
             } catch(error) {
                 console.error('Error updating user:', error);
+            } finally {
+                this.currId = null;
+                this.toggleForm(null);
             }
-}
+        },
+        persistUser(){
+            // 1. carregar localstorage e fazer parse com JSON.parse()
+            // 2. ver se o usuário existe no localstorage
+            // 3.1 se existir, substituir o usuário
+            // 3.2 se não existir, adicionar o usuário
+            // 3. transformar numa string de json com JSON.stringify()
+            // 4. salvar no localStorage
+        }
 
-    } 
+    }
 }
 </script>
-  
-  <style lang="css" scoped>
-  main {
-    margin: 96px auto 0;
-  }
-    .title-wrapper {
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        margin-bottom: 32px;
-    }
-    .title-wrapper h1 {
-        font-size: 3.125rem;            
-    }
-    .btn-new-usr {
-        width: 100%;
-        max-width: 185px;
-        background-color: #000;
-        color: #fff;
-        border-radius: 5px;
-        text-transform: capitalize;
-        font-weight: 600;
-        font-size: 0.938rem;
-    }
-    .card-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-  </style>
+
+<style lang="css" scoped>
+main {
+  margin: 96px auto 0;
+}
+.title-wrapper {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+.title-wrapper h1 {
+  font-size: 3.125rem;
+}
+.btn-new-usr {
+  width: 100%;
+  max-width: 185px;
+  background-color: #000;
+  color: #fff;
+  border-radius: 5px;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 0.938rem;
+}
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+</style>

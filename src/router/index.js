@@ -9,6 +9,12 @@ export default new Router({
             path: "/",
             name: "home",
             component: () => import('../pages/HomePage')
-        }
+        },
+        {
+            path: '/user/:id',
+            name: 'user-details',
+            component: () => import('../components/UserDetails'),
+            props: true
+          }
     ]
 })
