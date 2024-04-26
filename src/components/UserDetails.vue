@@ -13,24 +13,24 @@
         <img :src="user.avatar ? user.avatar : require('@/assets/avatar.png')"
         :alt="'Avatar do usuário ' + user.first_name + ' ' + user.last_name">
       </div>
-      <div class="details-name">
+      <div v-if="user.first_name" class="details-name">
         <span class="details-title">Primeiro nome</span>
         <strong class="details-subtitle">{{ user.first_name }}</strong>
       </div>
-      <div class="details-name" v-if="user.first_name">
+      <div  v-if="user.last_name" class="details-name" >
         <span>Último nome</span>
         <strong class="details-subtitle">{{ user.last_name }}</strong>
       </div>
     </div>
 
     <div class="details-bottom-wrapper">
-      <div class="details-mail">
+      <div v-if="user.email" class="details-mail">
         <span class="details-title">Endereço de email</span>
-        <span class="details-subtitle">george.bluth@reqres.in</span>
+        <span class="details-subtitle">{{ user.email }}</span>
       </div>
-      <div v-if="user.email" class="details-avatar">
+      <div v-if="user.avatar" class="details-avatar">
         <span class="details-title">Link do avatar</span>
-        <a class="details-subtitle" :href="user.email" target="_blank">{{ user.email }}</a>
+        <a class="details-subtitle" :href="user.avatar" target="_blank">{{ user.avatar }}</a>
       </div>
       <div class="details-support">
         <span class="details-title">Link de suporte</span>
@@ -107,6 +107,12 @@ export default {
   display: flex;
   align-items: center;
   gap: 2rem;
+}
+.details-middle-wrapper img{
+  max-width: 120px;
+  max-height: 120px;
+  width: 100%;
+  height: 100%;
 }
 .details-name {
   display: flex;

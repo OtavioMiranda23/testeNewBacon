@@ -3,8 +3,8 @@
     <div>
       <div class="title-wrapper">
         <h1>Usuários</h1>
-        <button @click="toggleForm(null)" class="btn-new-usr">
-          Novo Usuário
+        <button @click="toggleForm(null)" class="btn-new-usr" :class=" formOpen ? 'gray' : ''">
+          {{ formOpen ? "Cancelar" : "Novo Usuário"}} 
         </button>
       </div>
       <CreateUserForm
@@ -63,7 +63,6 @@ export default {
     data() {
         return {
             users: [],
-            usersStorage: [],
             formOpen: false,
             currId: null,
         }
@@ -71,7 +70,6 @@ export default {
 
     async created() {
         await this.getUsers(1, 6);
-        console.log(this.users);
     },
 
     methods: {
@@ -94,15 +92,13 @@ export default {
         },
         async deleteUser(id) {
             try {
-                const res = await axios.delete(`https://reqres.in/api/users/${id}`);
-                console.log(res)
+                await axios.delete(`https://reqres.in/api/users/${id}`);
                 this.users = this.users.filter(user => user.id !== id);
             } catch (error) {
             console.error('Error deleting user:', error);
             }
         },
         async createUser(user) {
-            console.log("create user")
             try {
                 let {first_name, last_name} = this.handleName(user.name);
 
@@ -115,7 +111,6 @@ export default {
 
                 const res = await axios.post('https://reqres.in/api/users', userDataToCreate);
                 this.users.unshift(res.data);
-                // this.persistUser({...this.users[updatedUserIndex], ...res.data})
                 this.toggleForm(null);
 
             } catch(error) {
@@ -131,7 +126,6 @@ export default {
             
             this.currId = id;
             this.formOpen = !this.formOpen;
-            console.log("toggleForm$id " + this.currId);
         },
 
         /**
@@ -161,7 +155,6 @@ export default {
          * @returns {void}
          */
         async updateUser(id, user) {
-            console.log("update user")
             try {
 
                 let {first_name, last_name} = this.handleName(user.name);
@@ -180,15 +173,6 @@ export default {
                     console.error(`Usuário com id ${id} não encontrado no state users`);
                     return;
                 }
-                // const updatedUserStorageIndex = this.usersStorage.findIndex(user => user.id === id);
-                // if (updatedUserStorageIndex !== -1) {
-                //     this.usersStorage.splice() [updatedUserStorageIndex]
-
-                // }
-                this.usersStorage[updatedUserIndex] = {...this.users[updatedUserIndex], ...res.data};
-            
-                // this.persistUser({...this.users[updatedUserIndex]})
-                this.persistUser();
                 this.users[updatedUserIndex] = {...this.users[updatedUserIndex], ...res.data};
 
             } catch(error) {
@@ -197,19 +181,7 @@ export default {
                 this.currId = null;
                 this.toggleForm(null);
             }
-        },
-        persistUser(){
-            if (typeof(Storage) === "undefined") return null;
-            // 1. carregar localstorage e fazer parse com JSON.parse()
-            window.localStorage.setItem("dataUser", JSON.stringify(this.usersStorage));
-            console.log('storeage', window.localStorage.getItem("dataUser"))
-            // 2. ver se o usuário existe no localstorage
-            // 3.1 se existir, substituir o usuário
-            // 3.2 se não existir, adicionar o usuário
-            // 3. transformar numa string de json com JSON.stringify()
-            // 4. salvar no localStorage
         }
-
     }
 }
 </script>
@@ -233,6 +205,22 @@ export default {
   text-transform: capitalize;
   font-weight: 600;
   font-size: 0.938rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+}
+.btn-new-usr.gray {
+  background-color: #F7F7F7;
+  color: #000;
+  border: none;
+  transition: background-color 0.2s ease;
+
+}
+.btn-new-usr:hover {
+  background-color: #333;
+}
+.btn-new-usr.gray:hover {
+  background-color: #e4e4e4;
 }
 .card-wrapper {
   display: flex;

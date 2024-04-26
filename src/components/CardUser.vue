@@ -75,6 +75,8 @@ export default {
   font-size: 1rem;
   font-weight: 400;
   color: #797979;
+  word-break: break-all;
+
 }
 .card-content-text strong {
   font-size: 1.125rem;
@@ -85,11 +87,17 @@ export default {
 }
 .card-icons {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 .card-icons button {
   background-color: transparent;
   border: none;
   cursor: pointer;
+}
+@media (max-width: 768px) {
+  .card, .card-content-text {
+    width: auto;
+  }
 }
 </style>
