@@ -61,18 +61,6 @@ export default {
   methods: {
     async fetchUserData(userId) {
       try {
-        // Verifique se os dados do usuário estão no localStorage
-        const storedUserData = window.localStorage.getItem('userData');
-        console.log('6666', storedUserData)
-        if (storedUserData) {
-          alert()
-          const parse = JSON.parse(storedUserData);
-          console.log(parse.id);
-          this.user = parse;
-          return;
-        }
-
-        // Se não estiverem no localStorage, faça a solicitação à API
         const res = await axios.get(`https://reqres.in/api/users/${userId}`);
         this.user = res.data.data;
       }catch(error) {

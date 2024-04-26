@@ -44,8 +44,6 @@ export default {
         }
         if(this.userId) user.id = this.userId;
         this.$emit('submit-user', user);
-        console.log("SUBMIT USER EMITIDO")
-
         this.name = "";
         this.role = "";
       }
@@ -91,6 +89,6 @@ export default {
   gap: 8px;
 }
 #form input.error, #form select.error {
-  border-color: red; /* Apply red border on error class */
+  border-color: red; 
 }
 </style>

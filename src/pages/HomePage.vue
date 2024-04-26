@@ -156,18 +156,13 @@ export default {
          */
         async updateUser(id, user) {
             try {
-
                 let {first_name, last_name} = this.handleName(user.name);
-
                 const userDataToUpdate = {
                     first_name,
                     role: user.role,
                 };
-
                 if(last_name) userDataToUpdate.last_name = last_name;
-
                 const res = await axios.patch(`https://reqres.in/api/users/${id}`, userDataToUpdate);
-
                 const updatedUserIndex = this.users.findIndex(user => user.id === id);
                 if (updatedUserIndex === -1) {
                     console.error(`Usuário com id ${id} não encontrado no state users`);
